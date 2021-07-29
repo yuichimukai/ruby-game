@@ -19,29 +19,50 @@ class Brave
   def attack(monster)
     puts "#{@name}の攻撃"
 
-    #0~3の間でランダムに数字が変わる
-    attack_num = rand(4)
+    attack_type = decision_attack_type
 
-    #1/4の確率でspecial_attackを実行
-    if attack_num == 0
-      puts "必殺攻撃"
-      #calculate_special_attackの呼び出し
-      #攻撃力の1.5倍の数値が戻り値として帰ってくる
-      damage = calculate_special_attack - monster.defense
-    else
-      puts "通常攻撃"
-      damage = @offense - monster.defense
-    end
+    damage = calculate_damage(target: monster, attack_type: attack_type)
 
-    monster.hp -= damage
+    cause_damage(target: monster,damage: damage)
 
-    puts "#{monster.name}は#{damage}のダメージをうけた"
     puts "#{monster.name}の残りHPは#{monster.hp}だ"
   end
 
-  def calculate_special_attack
-    @offense * SPECIAL_ATTACK_CONSTANT
-  end
+  private
+
+    def decision_attack_type
+      attack_num = rand(4)
+
+      if attack_num == 0
+        "special_attack"
+      else
+        "normal_attack"
+      end
+    end
+
+    def calculate_damage(**params)
+      #変数に格納することにより後にハッシュのキーに変更がある場合でも変更箇所が少なくて済む
+      target = params[:target]
+      attack_type = params[:attack_type]
+
+      if attack_type == "special_attack"
+        calculate_special_attack - target.defense
+      else
+        @offense - target.defense
+      end
+    end
+
+    def cause_damage(**params)
+      damage = params[:damage]
+      target = params[:target]
+
+      target.hp -= damage
+      puts "#{target.name}は#{damage}のダメージをうけた"
+    end
+
+    def calculate_special_attack
+      @offense * SPECIAL_ATTACK_CONSTANT
+    end
 end
 
 class Monster
@@ -102,7 +123,7 @@ end
 brave = Brave.new(name: "テリー", hp: 500, offense: 150, defense: 100)
 
 #ハッシュ形式でデータを渡すためどういうデータを渡しているのかの把握がしやすい
-monster = Monster.new(name: "スライム", hp: 200, offense: 200, defense: 100)
+monster = Monster.new(name: "スライム", hp: 250, offense: 200, defense: 100)
 
 brave.attack(monster)
 monster.attack(brave)
