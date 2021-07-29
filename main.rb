@@ -1,57 +1,22 @@
 class Brave
-  #nameのセッター
-  def name=(name)
-    @name = name
-  end
+  #attr_readerによりゲッターを省略できる
+  attr_reader :name, :hp, :offense, :defense
+  #セッターとゲッターを一括定義
+  attr_accessor :hp
 
-  #nameのゲッター
-  def name
-    @name
-  end
-
-  #hpのセッター
-  def hp=(hp)
-    @hp=hp
-  end
-
-  #hpのゲッター
-  def hp
-    @hp
-  end
-
-  #offenseのセッター
-  def offense=(offense)
-    @offense = offense
-  end
-
-  #offenseのゲッター
-  def offense
-    @offense
-  end
-
-  #defenseのセッター
-  def defense=(defense)
-    @defense = defense
-  end
-
-  #defesneのゲッター
-  def defense
-    @defense
+  #new演算子から渡された引数をハッシュで受け取る
+  #引数に**を記述することでハッシュしか受け取れなくなる
+  def initialize(**params)
+    @name = params[:name]
+    @hp = params[:hp]
+    @offense = params[:offense]
+    @defense = params[:defense]
   end
 
 end
 
-brave = Brave.new
-
-brave.name = "テリー"
-brave.hp = 500
-brave.offense = 150
-brave.defense = 100
-
-# puts "NAME:#{brave.name}"
-# puts "HP:#{brave.hp}"
-# puts "OFFENSE:#{brave.offense}"
-# puts "DEFFENSE:#{brave.defense}"
+#インスタンスごとにパラメーターを自由に設定できる
+brave = Brave.new(name: "テリー", hp: 500, offense: 150, defense: 100)
 
 #ヒアドキュメントによる記述
 puts <<~TEXT
@@ -60,3 +25,6 @@ HP：#{brave.hp}
 OFFENSE：#{brave.offense}
 DEFENSE：#{brave.defense}
 TEXT
+
+brave.hp -= 30
+puts "#{brave.name}はダメージをうけた！残りHPは#{brave.hp}だ"
