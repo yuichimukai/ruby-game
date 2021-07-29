@@ -34,8 +34,10 @@ class Brave
       attack_num = rand(4)
 
       if attack_num == 0
+        puts "必殺攻撃"
         "special_attack"
       else
+        puts "通常攻撃"
         "normal_attack"
       end
     end
@@ -57,6 +59,9 @@ class Brave
       target = params[:target]
 
       target.hp -= damage
+
+      target.hp = 0 if target.hp < 0
+
       puts "#{target.name}は#{damage}のダメージをうけた"
     end
 
@@ -95,14 +100,30 @@ class Monster
     end
     puts "#{@name}の攻撃"
 
-    damage = @offense - brave.defense
-    brave.hp -= damage
+    damage = calculate_damage(brave)
 
-    puts "#{brave.name}は#{damage}のダメージをうけた"
+    cause_damage(target: brave, damage: damage)
+
     puts "#{brave.name}の残りのHPは#{brave.hp}だ"
   end
 
   private
+
+    def calculate_damage(target)
+      @offense - target.defense
+    end
+
+    def cause_damage(**params)
+      damage = params[:damage]
+      target = params[:target]
+
+      target.hp -= damage
+
+      #ターゲットのHPがマイナスになるなら0を代入
+      target.hp = 0 if target.hp < 0
+
+      puts "#{target.name}は#{damage}のダメージを受けた"
+    end
 
     def transform
       #変身後の名前入
@@ -125,5 +146,22 @@ brave = Brave.new(name: "テリー", hp: 500, offense: 150, defense: 100)
 #ハッシュ形式でデータを渡すためどういうデータを渡しているのかの把握がしやすい
 monster = Monster.new(name: "スライム", hp: 250, offense: 200, defense: 100)
 
-brave.attack(monster)
-monster.attack(brave)
+loop do
+  brave.attack(monster)
+  break if monster.hp <= 0
+
+  monster.attack(brave)
+  break if brave.hp <= 0
+end
+
+battle_result = brave.hp > 0
+
+if battle_result
+  exp = (monster.offense + monster.defense) * 2
+  gold = (monster.offense + monster.defense) * 3
+  puts "#{brave.name}はたたかいに勝った"
+  puts "#{exp}の経験値と#{gold}ゴールドを獲得した"
+else
+  puts "#{brave.name}はたたかいに負けた"
+  puts "目の前が真っ暗になった"
+end
